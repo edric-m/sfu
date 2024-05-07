@@ -52,12 +52,19 @@ export default function Home() {
     const textAreaSegments = document.getElementById("textAreaJson");
     const newSegmentData = JSON.parse(textAreaSegments.value);
     try {
-      console.log(newSegmentData);
+      // console.log(newSegmentData);
       const docRef = await setDoc(doc(db, "segments", "segmentsData"), {newSegmentData});
       // console.log("Document written with ID: ", docRef.id);
     } catch (e) {
       console.error("Error adding document: ", e);
     }
+    setSegments(newSegmentData);
+    clickCloseModal();
+  }
+
+  const preview = () => {
+    const textAreaSegments = document.getElementById("textAreaJson");
+    const newSegmentData = JSON.parse(textAreaSegments.value);
     setSegments(newSegmentData);
     clickCloseModal();
   }
@@ -68,6 +75,7 @@ export default function Home() {
       <div id="myModal" className={styles.modal}>
         <div className={styles.modalcontent}>
           <button style={{margin:'20px'}} onClick={clickSave}>save</button>
+          <button style={{margin:'20px'}} onClick={preview}>preview</button>
           <span className={styles.close} onClick={clickCloseModal}>&times;</span>
           <div style={{margin:'1%',textAlign:'center'}}>page content JSON</div>
           <textarea id="textAreaJson" style={{width:'100%', height:'700px'}} defaultValue={editText} />
