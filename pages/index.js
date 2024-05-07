@@ -2,12 +2,14 @@ import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import dataLoader from '../lib/dataLoader';
 import Section from '../components/Section';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
-const segments = dataLoader();
+const segmentsInit = dataLoader();
 // console.log(data);
 
 export default function Home() {
+  const [segments, setSegments] = useState(segmentsInit);
+
   const contentSegments = useMemo(() => {
     return (
       segments.map((segment) => {
@@ -15,6 +17,22 @@ export default function Home() {
       })
     )}, [segments]
   );
+
+  const clickEdit = () => {
+    const modal = document.getElementById("myModal");
+    modal.style.display = "block";
+  }
+
+  const clickCloseModal = () => {
+    const modal = document.getElementById("myModal");
+    modal.style.display = "none";
+  }
+
+  const clickSave = () => {
+    const textAreaSegments = document.getElementById("textAreaJson");
+    setSegments(JSON.parse(textAreaSegments.value));
+    clickCloseModal();
+  }
 
   return (
     <div className={styles.container}>
@@ -37,10 +55,20 @@ export default function Home() {
         </div>
       </main>
 
+      <div id="myModal" className={styles.modal}>
+        <div className={styles.modalcontent}>
+          <button style={{margin:'20px'}} onClick={clickSave}>save</button>
+          <span className={styles.close} onClick={clickCloseModal}>&times;</span>
+          <div style={{margin:'1%',textAlign:'center'}}>page content JSON</div>
+          <textarea id="textAreaJson" rows="3" style={{width:'100%', height:'600px'}}>{JSON.stringify(segments, null, 4)}</textarea>
+        </div>
+      </div>
+
       <footer>
         <div>Footer / credits</div>
-        <button style={{margin:'20px'}}>edit</button>
+        <button style={{margin:'20px'}} onClick={clickEdit}>edit</button>
       </footer>
+
 
       <style jsx>{`
         main {
