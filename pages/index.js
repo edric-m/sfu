@@ -1,7 +1,21 @@
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
+import dataLoader from '../lib/dataLoader';
+import Section from '../components/Section';
+import { useMemo } from 'react';
+
+const segments = dataLoader();
+// console.log(data);
 
 export default function Home() {
+  const contentSegments = useMemo(() => {
+    return (
+      segments.map((segment) => {
+        return <Section dashboard={segment.dashboard} textsections={segment.textsections} image={segment.image} />
+      })
+    )}, [segments]
+  );
+
   return (
     <div className={styles.container}>
       <Head>
@@ -11,33 +25,21 @@ export default function Home() {
 
       <main>
         <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Placeholder!</a>
+          This is <a>Placeholder!</a>
         </h1>
 
         <p className={styles.description}>
-          Data visualisations for Sydney CBD bus shelters
+          subtitle goes here
         </p>
 
-        <div className={styles.grid}>
-          <a className={styles.card}>
-            <iframe src="https://public.tableau.com/views/SuburbDashboard/SuburbDashboard?:language=en-GB&:sid=&:display_count=n&:origin=viz_share_link:showVizHome=no&:embed=true" width="1010" height="850"></iframe>
-          </a>
-
-          <a className={styles.card}>
-            <iframe src="https://public.tableau.com/views/WeatherDashboard_17144372001070/WeatherDashboard?:language=en-GB&publish=yes&:sid=&:display_count=n&:origin=viz_share_link:showVizHome=no&:embed=true" width="1050" height="850"></iframe>
-          </a>
-
-          <a
-            className={styles.card}
-          >
-            <h3>Example Card</h3>
-            <p>Stuff goes here.</p>
-          </a>
+        <div className={styles.basecontainer}>
+          {contentSegments}
         </div>
       </main>
 
       <footer>
         <div>Footer / credits</div>
+        <button style={{margin:'20px'}}>edit</button>
       </footer>
 
       <style jsx>{`
@@ -48,6 +50,7 @@ export default function Home() {
           flex-direction: column;
           justify-content: center;
           align-items: center;
+          width: 100%;
         }
         footer {
           width: 100%;
