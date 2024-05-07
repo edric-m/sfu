@@ -2,17 +2,37 @@ import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import dataLoader from '../lib/dataLoader';
 import Section from '../components/Section';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-const segmentsInit = dataLoader();
-// console.log(data);
+import { initializeApp } from "firebase/app";
+import { doc, getFirestore, updateDoc, addDoc, collection, setDoc } from "firebase/firestore";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD2ye8A6ktk0H9uAPzEoL4haHYBehfJvxk",
+  authDomain: "sydfu-6aa5a.firebaseapp.com",
+  projectId: "sydfu-6aa5a",
+  storageBucket: "sydfu-6aa5a.appspot.com",
+  messagingSenderId: "722465028041",
+  appId: "1:722465028041:web:2b57e2d53c9338df571a18"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 export default function Home() {
-  const [segments, setSegments] = useState(segmentsInit);
+  const [segments, setSegments] = useState();
+  
+  useEffect(() => {
+    async function loadData() {
+      const segmentsInit = await dataLoader(db);
+      setSegments(segmentsInit);
+    }
+    loadData();
+  }, [setSegments]);
 
   const contentSegments = useMemo(() => {
     return (
-      segments.map((segment) => {
+      segments && segments.map((segment) => {
         return <Section dashboard={segment.dashboard} textsections={segment.textsections} image={segment.image} />
       })
     )}, [segments]
@@ -28,11 +48,33 @@ export default function Home() {
     modal.style.display = "none";
   }
 
-  const clickSave = () => {
+  const clickSave = async () => {
     const textAreaSegments = document.getElementById("textAreaJson");
-    setSegments(JSON.parse(textAreaSegments.value));
+    const newSegmentData = JSON.parse(textAreaSegments.value);
+    try {
+      console.log(newSegmentData);
+      const docRef = await setDoc(doc(db, "segments", "segmentsData"), {newSegmentData});
+      // console.log("Document written with ID: ", docRef.id);
+    } catch (e) {
+      console.error("Error adding document: ", e);
+    }
+    setSegments(newSegmentData);
     clickCloseModal();
   }
+
+  const modal = useMemo(() => {
+    const editText = JSON.stringify(segments, null, 4);
+    return (
+      <div id="myModal" className={styles.modal}>
+        <div className={styles.modalcontent}>
+          <button style={{margin:'20px'}} onClick={clickSave}>save</button>
+          <span className={styles.close} onClick={clickCloseModal}>&times;</span>
+          <div style={{margin:'1%',textAlign:'center'}}>page content JSON</div>
+          <textarea id="textAreaJson" style={{width:'100%', height:'700px'}} defaultValue={editText} />
+        </div>
+      </div>
+    )
+  }, [segments]);
 
   return (
     <div className={styles.container}>
@@ -55,14 +97,7 @@ export default function Home() {
         </div>
       </main>
 
-      <div id="myModal" className={styles.modal}>
-        <div className={styles.modalcontent}>
-          <button style={{margin:'20px'}} onClick={clickSave}>save</button>
-          <span className={styles.close} onClick={clickCloseModal}>&times;</span>
-          <div style={{margin:'1%',textAlign:'center'}}>page content JSON</div>
-          <textarea id="textAreaJson" rows="3" style={{width:'100%', height:'600px'}}>{JSON.stringify(segments, null, 4)}</textarea>
-        </div>
-      </div>
+      {modal}
 
       <footer>
         <div>Footer / credits</div>
