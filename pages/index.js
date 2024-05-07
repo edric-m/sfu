@@ -63,10 +63,14 @@ export default function Home() {
   }
 
   const preview = () => {
-    const textAreaSegments = document.getElementById("textAreaJson");
-    const newSegmentData = JSON.parse(textAreaSegments.value);
-    setSegments(newSegmentData);
-    clickCloseModal();
+    try {
+      const textAreaSegments = document.getElementById("textAreaJson");
+      const newSegmentData = JSON.parse(textAreaSegments.value);
+      setSegments(newSegmentData);
+      clickCloseModal();
+    } catch (e) {
+      alert('invalid json', e);
+    }
   }
 
   const modal = useMemo(() => {
